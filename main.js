@@ -11,8 +11,8 @@ fetch("data.json")
 
 function updateMap() {
     const selectedDate = document.getElementById("dateInput").value;
-    const selectedVariable = document.getElementById("variableSelect").value;
-    const selectedUnit = document.getElementById("unitSelect").value;
+    const selectedVariable = document.getElementById("variable").value;
+    const selectedUnit = "kelvin";
 
     if (!selectedDate) {
         // alert("Please select a date.");
@@ -99,7 +99,6 @@ function updateMap() {
     };
 
     Plotly.newPlot("map", [mapTrace], mapLayout).then(function () {
-        plotContourPlot(filteredData, selectedUnit); // Always plot contour plot
         document.getElementById("map").on("plotly_click", function (data) {
             const point = data.points[0];
             const locationData = filteredData.find(
@@ -107,15 +106,16 @@ function updateMap() {
             ).locationData;
             const lat = point.lat.toFixed(2);
             const lon = point.lon.toFixed(2);
-            document.getElementById(
-                "timeseries-heading"
-            ).innerText = `Displaying the temperature of latitude ${lat} and longitude ${lon}`;
-            plotTimeseriesGraph(locationData, selectedDate, selectedUnit);
+            plotTimeseriesGraph(locationData, selectedDate, selectedUnit, [
+                lat,
+                lon,
+            ]);
         });
     });
 }
 
-function plotTimeseriesGraph(locationData, selectedDate, selectedUnit) {
+function plotTimeseriesGraph(locationData, selectedDate, selectedUnit, coord) {
+    document.getElementById("timeseries-heading").style.display = "block";
     const dates = Object.keys(locationData)
         .filter((date) => date !== "")
         .sort();
@@ -150,7 +150,7 @@ function plotTimeseriesGraph(locationData, selectedDate, selectedUnit) {
     };
 
     const timeSeriesLayout = {
-        title: `Temperature Time Series for Latitude and Longitude on ${selectedDate}`,
+        title: `Temperature Time Series for lat: ${coord[0]} long: ${coord[1]} on ${selectedDate}`,
         xaxis: {
             title: "Date",
             titlefont: {
@@ -186,78 +186,4 @@ function plotTimeseriesGraph(locationData, selectedDate, selectedUnit) {
     };
 
     Plotly.newPlot("timeseries", [timeSeriesTrace], timeSeriesLayout);
-}
-
-function plotContourPlot(filteredData, selectedUnit) {
-    const lats = filteredData.map((d) => d.lat);
-    const lons = filteredData.map((d) => d.lon);
-    const temps = filteredData.map((d) => d.temp);
-
-    const trace = {
-        type: "contour",
-        z: temps,
-        x: lons,
-        y: lats,
-        colorscale: [
-            [0, "blue"],
-            [0.5, "lime"],
-            [0.75, "yellow"],
-            [1, "red"],
-        ],
-        colorbar: {
-            title: `Temperature (${
-                selectedUnit === "kelvin"
-                    ? "K"
-                    : selectedUnit === "celsius"
-                    ? "°C"
-                    : "°F"
-            })`,
-            tickvals: [Math.min(...temps), Math.max(...temps)],
-            ticktext: [
-                `${Math.min(...temps).toFixed(1)} ${selectedUnit}`,
-                `${Math.max(...temps).toFixed(1)} ${selectedUnit}`,
-            ],
-        },
-    };
-
-    const layout = {
-        title: "Contour Plot of Temperature",
-        xaxis: {
-            title: "Longitude",
-            titlefont: {
-                size: 16,
-                color: "#ffffff",
-            },
-            tickfont: {
-                size: 14,
-                color: "#ffffff",
-            },
-        },
-        yaxis: {
-            title: "Latitude",
-            titlefont: {
-                size: 16,
-                color: "#ffffff",
-            },
-            tickfont: {
-                size: 14,
-                color: "#ffffff",
-            },
-        },
-        paper_bgcolor: "#1e1e1e",
-        plot_bgcolor: "#1e1e1e",
-        font: { color: "#ffffff" },
-    };
-
-    Plotly.newPlot("contour", [trace], layout);
-}
-
-function updateUnitOptions() {
-    const selectedVariable = document.getElementById("variableSelect").value;
-    const unitSelect = document.getElementById("unitSelect");
-    if (selectedVariable === "ta") {
-        unitSelect.style.display = "inline";
-    } else {
-        unitSelect.style.display = "none";
-    }
 }

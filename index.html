@@ -32,7 +32,10 @@
                 <h2 class="msu">@ MSU</h2>
             </a>
             <h1 class="title">
-                <a href="http://www.cse.msu.edu/~ptan/project/xtreme/">
+                <a
+                    href="http://www.cse.msu.edu/~ptan/project/xtreme/"
+                    target="_blank"
+                >
                     Prediction and Characterization of Extreme Events in
                     Spatio-Temporal Data
                 </a>
@@ -40,7 +43,7 @@
         </header>
 
         <div class="menubar">
-            <select name="Variable">
+            <select name="variable" id="variable">
                 <option value="none" selected disabled>
                     Choose a variable
                 </option>
@@ -52,11 +55,9 @@
         </div>
         <div class="container">
             <div id="map"></div>
-            <div id="timeseries">
-                <h2 id="timeseries-heading">Temperature Time Series</h2>
-            </div>
+            <h2 id="timeseries-heading">Temperature Time Series</h2>
+            <div id="timeseries"></div>
         </div>
-
-        <script src="./main.js"></script>
     </body>
+    <script src="./main.js"></script>
 </html>
