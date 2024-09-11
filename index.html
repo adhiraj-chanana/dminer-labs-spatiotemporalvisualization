@@ -1,330 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature Map Visualization</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        h1 {
-            color: #ffffff;
-            margin-top: 30px;
-            font-size: 2.5em;
-        }
-        h2 {
-            color: #ffffff;
-            font-size: 1.5em;
-        }
-        .container {
-            width: 90%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        input[type="date"], select {
-            padding: 12px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #ffffff;
-            border-radius: 6px;
-            margin-right: 10px;
-            font-size: 1em;
-        }
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            background-color: #007bff;
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #map, #timeseries, #contour {
-            width: 100%;
-            height: 600px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        #contour-heading, #timeseries-heading {
-            color: #ffffff;
-            margin-bottom: 20px;
-        }
-        .instructions {
-            text-align: left;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #2b2b2b;
-            border-radius: 8px;
-        }
-        .instructions h2 {
-            font-size: 1.5em;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Temperature Map Visualization</h1>
-        <div class="instructions">
-            <h2>Instructions</h2>
-            <ul>
-                <li>Select a date to view the temperature data for that day.</li>
-                <li>Choose the variable you want to visualize from the dropdown menu.</li>
-                <li>Change the temperature unit from Kelvin to Celsius or Fahrenheit.</li>
-                <li>Click the "Update Map" button to generate a temperature map based on your selections.</li>
-                <li>Click on any point on the map to view a time series graph of the temperature data for that location.</li>
-            </ul>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Temperature Map Visualization</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <script
+            src="https://kit.fontawesome.com/53800a569d.js"
+            crossorigin="anonymous"
+        ></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <header class="header">
+            <a
+                href="https://www.egr.msu.edu/~ptan/dminer/"
+                target="_blank"
+                class="logo"
+            >
+                <h1 class="lab">DMiner Lab</h1>
+                <h2 class="msu">@ MSU</h2>
+            </a>
+            <h1 class="title">
+                <a href="http://www.cse.msu.edu/~ptan/project/xtreme/">
+                    Prediction and Characterization of Extreme Events in
+                    Spatio-Temporal Data
+                </a>
+            </h1>
+        </header>
+
+        <div class="menubar">
+            <select name="Variable">
+                <option value="none" selected disabled>
+                    Choose a variable
+                </option>
+                <option value="ta">Temperature</option>
+                <option value="pa">Precipitation</option>
+            </select>
+            <input type="date" id="dateInput" />
+            <button onclick="updateMap()">Update Map</button>
         </div>
-        <input type="date" id="dateInput" />
-        <select id="variableSelect" onchange="updateUnitOptions()">
-            <option value="ta">Temperature</option>
-            <!-- Additional options can be added here -->
-        </select>
-        <select id="unitSelect">
-            <option value="kelvin">Kelvin</option>
-            <option value="celsius">Celsius</option>
-            <option value="fahrenheit">Fahrenheit</option>
-        </select>
-        <button onclick="updateMap()">Update Map</button>
-        <div id="map"></div>
-        <div id="contour">
-            <h2 id="contour-heading">World Contour Plot of Temperature</h2>
+        <div class="container">
+            <div id="map"></div>
+            <div id="timeseries">
+                <h2 id="timeseries-heading">Temperature Time Series</h2>
+            </div>
         </div>
-        <div id="timeseries">
-            <h2 id="timeseries-heading">Temperature Time Series</h2>
-        </div>
-    </div>
 
-    <script>
-        let jsonData;
-
-        // Fetch JSON data from external file
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                jsonData = data;
-                updateMap();  // Initial map update
-            })
-            .catch(error => console.error('Error loading JSON data:', error));
-
-        function updateMap() {
-            const selectedDate = document.getElementById('dateInput').value;
-            const selectedVariable = document.getElementById('variableSelect').value;
-            const selectedUnit = document.getElementById('unitSelect').value;
-
-            if (!selectedDate) {
-                alert('Please select a date.');
-                return;
-            }
-
-            if (!jsonData) {
-                alert('Data not loaded yet.');
-                return;
-            }
-
-            const tempData = jsonData.locations.map(location => {
-                let temp = location[selectedVariable][selectedDate];
-                if (temp !== null) {
-                    if (selectedUnit === 'celsius') {
-                        temp = temp - 273.15;
-                    } else if (selectedUnit === 'fahrenheit') {
-                        temp = (temp - 273.15) * 9/5 + 32;
-                    }
-                }
-                return {
-                    lat: location.lat,
-                    lon: location.lon,
-                    temp: temp !== null ? temp : null,
-                    locationData: location[selectedVariable]  // Store full location data
-                };
-            });
-
-            const filteredData = tempData.filter(d => d.temp !== null);
-
-            const mapTrace = {
-                type: 'scattergeo',
-                mode: 'markers',
-                lat: filteredData.map(d => d.lat),
-                lon: filteredData.map(d => d.lon),
-                marker: {
-                    size: 10,
-                    color: filteredData.map(d => d.temp),
-                    colorscale: [
-                        [0, 'blue'],
-                        [0.5, 'lime'],
-                        [0.75, 'yellow'],
-                        [1, 'red']
-                    ],
-                    cmin: Math.min(...filteredData.map(d => d.temp)),
-                    cmax: Math.max(...filteredData.map(d => d.temp)),
-                    colorbar: {
-                        title: `Temperature (${selectedUnit === 'kelvin' ? 'K' : selectedUnit === 'celsius' ? '°C' : '°F'})`,
-                        tickvals: [Math.min(...filteredData.map(d => d.temp)), Math.max(...filteredData.map(d => d.temp))],
-                        ticktext: [`${Math.min(...filteredData.map(d => d.temp)).toFixed(1)} ${selectedUnit}`, `${Math.max(...filteredData.map(d => d.temp)).toFixed(1)} ${selectedUnit}`]
-                    }
-                },
-                text: filteredData.map(d => d.temp.toFixed(2)),
-                hoverinfo: 'text+lat+lon'
-            };
-
-            const mapLayout = {
-                title: `Temperature Map on ${selectedDate}`,
-                geo: {
-                    projection: { type: 'natural earth' },
-                    showland: true,
-                    landcolor: '#e0e0e0',
-                    bgcolor: '#1e1e1e'
-                },
-                paper_bgcolor: '#1e1e1e',
-                plot_bgcolor: '#1e1e1e',
-                font: { color: '#e0e0e0' }
-            };
-
-            Plotly.newPlot('map', [mapTrace], mapLayout).then(function() {
-                plotContourPlot(filteredData, selectedUnit); // Always plot contour plot
-                document.getElementById('map').on('plotly_click', function(data) {
-                    const point = data.points[0];
-                    const locationData = filteredData.find(d => d.lat === point.lat && d.lon === point.lon).locationData;
-                    const lat = point.lat.toFixed(2);
-                    const lon = point.lon.toFixed(2);
-                    document.getElementById('timeseries-heading').innerText = `Displaying the temperature of latitude ${lat} and longitude ${lon}`;
-                    plotTimeseriesGraph(locationData, selectedDate, selectedUnit);
-                });
-            });
-        }
-
-        function plotTimeseriesGraph(locationData, selectedDate, selectedUnit) {
-            const dates = Object.keys(locationData).filter(date => date !== "").sort();
-            const selectedDateObj = new Date(selectedDate);
-            const firstOfMonth = new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1);
-            const filteredDates = dates.filter(date => new Date(date) >= firstOfMonth && new Date(date) <= selectedDateObj);
-            
-            const temperatures = filteredDates.map(date => {
-                let temp = locationData[date];
-                if (selectedUnit === 'celsius') {
-                    temp = temp - 273.15;
-                } else if (selectedUnit === 'fahrenheit') {
-                    temp = (temp - 273.15) * 9/5 + 32;
-                }
-                return temp;
-            });
-
-            const timeSeriesTrace = {
-                type: 'scatter',
-                mode: 'lines+markers',
-                x: filteredDates,
-                y: temperatures,
-                line: { color: '#007bff' },
-                marker: { size: 8 }
-            };
-
-            const timeSeriesLayout = {
-                title: `Temperature Time Series for Latitude and Longitude on ${selectedDate}`,
-                xaxis: {
-                    title: 'Date',
-                    titlefont: {
-                        size: 16,
-                        color: '#ffffff'
-                    },
-                    tickfont: {
-                        size: 14,
-                        color: '#ffffff'
-                    },
-                    tickangle: -45
-                },
-                yaxis: {
-                    title: `Temperature (${selectedUnit === 'kelvin' ? 'K' : selectedUnit === 'celsius' ? '°C' : '°F'})`,
-                    titlefont: {
-                        size: 16,
-                        color: '#ffffff'
-                    },
-                    tickfont: {
-                        size: 14,
-                        color: '#ffffff'
-                    }
-                },
-                paper_bgcolor: '#1e1e1e',
-                plot_bgcolor: '#1e1e1e',
-                font: { color: '#ffffff' }
-            };
-
-            Plotly.newPlot('timeseries', [timeSeriesTrace], timeSeriesLayout);
-        }
-
-        function plotContourPlot(filteredData, selectedUnit) {
-            const lats = filteredData.map(d => d.lat);
-            const lons = filteredData.map(d => d.lon);
-            const temps = filteredData.map(d => d.temp);
-
-            const trace = {
-                type: 'contour',
-                z: temps,
-                x: lons,
-                y: lats,
-                colorscale: [
-                    [0, 'blue'],
-                    [0.5, 'lime'],
-                    [0.75, 'yellow'],
-                    [1, 'red']
-                ],
-                colorbar: {
-                    title: `Temperature (${selectedUnit === 'kelvin' ? 'K' : selectedUnit === 'celsius' ? '°C' : '°F'})`,
-                    tickvals: [Math.min(...temps), Math.max(...temps)],
-                    ticktext: [`${Math.min(...temps).toFixed(1)} ${selectedUnit}`, `${Math.max(...temps).toFixed(1)} ${selectedUnit}`]
-                }
-            };
-
-            const layout = {
-                title: 'Contour Plot of Temperature',
-                xaxis: {
-                    title: 'Longitude',
-                    titlefont: {
-                        size: 16,
-                        color: '#ffffff'
-                    },
-                    tickfont: {
-                        size: 14,
-                        color: '#ffffff'
-                    }
-                },
-                yaxis: {
-                    title: 'Latitude',
-                    titlefont: {
-                        size: 16,
-                        color: '#ffffff'
-                    },
-                    tickfont: {
-                        size: 14,
-                        color: '#ffffff'
-                    }
-                },
-                paper_bgcolor: '#1e1e1e',
-                plot_bgcolor: '#1e1e1e',
-                font: { color: '#ffffff' }
-            };
-
-            Plotly.newPlot('contour', [trace], layout);
-        }
-
-        function updateUnitOptions() {
-            const selectedVariable = document.getElementById('variableSelect').value;
-            const unitSelect = document.getElementById('unitSelect');
-            if (selectedVariable === 'ta') {
-                unitSelect.style.display = 'inline';
-            } else {
-                unitSelect.style.display = 'none';
-            }
-        }
-    </script>
-</body>
+        <script src="./main.js"></script>
+    </body>
 </html>

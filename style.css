@@ -1,0 +1,141 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --accent-color: #fca311;
+    --foreground-color: #e5e5e5;
+}
+
+*,
+*::before,
+*::after {
+    padding: 0;
+    margin: 0;
+}
+
+/* ================= HEADER ================= */
+.header {
+    position: relative;
+    background: var(--accent-color);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 10px;
+}
+
+.logo {
+    color: #000;
+    font-family: Inter;
+    font-style: bold;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    width: 15%;
+}
+
+.logo .lab {
+    font-size: 2rem;
+}
+
+.logo .msu {
+    font-size: 1rem;
+}
+
+.title {
+    font-family: "Libre Baskerville", serif;
+    font-size: 2rem;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+    transition: all ease-in-out 0.2s;
+}
+
+/* ================= MENUBAR ================= */
+.menubar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--foreground-color);
+    font-family: Inter, sans-serif;
+}
+.menubar > select {
+    font-weight: 600;
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    font-size: 1.25rem;
+    text-align: center;
+    border: 2px solid;
+    background-color: var(--foreground-color);
+}
+
+.menubar input[type="date"] {
+    background-color: var(--foreground-color);
+    font-weight: 600;
+    border: 2px solid;
+    text-align: center;
+    font-family: inherit;
+    font-size: 1.25rem;
+}
+
+.menubar button {
+    font-weight: 600;
+    font-size: 1.25rem;
+    background-color: var(--accent-color);
+    color: #000;
+    cursor: pointer;
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+    border: 2px solid black;
+}
+
+body {
+    background-color: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #cc8719;
+}
+#map,
+#timeseries,
+#contour {
+    width: 100%;
+    height: 600px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#contour-heading,
+#timeseries-heading {
+    color: #000000;
+    margin-bottom: 20px;
+}
+
+.instructions {
+    font-family: Inter, sans-serif;
+    color: black;
+    text-align: left;
+    margin-bottom: 20px;
+    padding: 2em;
+    font-size: 1.25rem;
+    border-radius: 8px;
+}
+.instructions h2 {
+    font-size: 2rem;
+}
