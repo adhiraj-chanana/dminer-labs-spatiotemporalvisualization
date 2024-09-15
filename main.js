@@ -4,8 +4,9 @@ let jsonData;
 let model = null;
 let variable = null;
 
-const modelSelect = document.getElementById("model");
-const variableSelect = document.getElementById("variable");
+// Both the select menus
+const modelSelect = document.getElementById("model"); // Values: gcm or de
+const variableSelect = document.getElementById("variable"); // Values: ta or pa
 
 // Fetch JSON data from external file
 fetch("data.json")
@@ -29,18 +30,20 @@ function updateMap() {
         return;
     }
 
+    selectedDate = "1980-06-23"; // TODO: Remove this
+
     // The user hasn't chosen anything yet
     if (!model || !variable) {
         return;
     }
 
     const tempData = jsonData.locations.map((location) => {
-        let temp = location[selectedVariable][selectedDate];
+        let temp = location[variable][selectedDate];
         return {
             lat: location.lat,
             lon: location.lon,
             temp: temp !== null ? temp : null,
-            locationData: location[selectedVariable], // Store full location data
+            locationData: location[variable], // Store full location data
         };
     });
 
@@ -70,10 +73,10 @@ function updateMap() {
                 ticktext: [
                     `${Math.min(...filteredData.map((d) => d.temp)).toFixed(
                         1
-                    )} ${selectedUnit}`,
+                    )} K`,
                     `${Math.max(...filteredData.map((d) => d.temp)).toFixed(
                         1
-                    )} ${selectedUnit}`,
+                    )} K`,
                 ],
             },
         },
@@ -102,16 +105,12 @@ function updateMap() {
             ).locationData;
             const lat = point.lat.toFixed(2);
             const lon = point.lon.toFixed(2);
-            plotTimeseriesGraph(locationData, selectedDate, selectedUnit, [
-                lat,
-                lon,
-            ]);
+            plotTimeseriesGraph(locationData, selectedDate, [lat, lon]);
         });
     });
 }
 
 function plotTimeseriesGraph(locationData, selectedDate, coord) {
-    document.getElementById("timeseries-heading").style.display = "block";
     const dates = Object.keys(locationData)
         .filter((date) => date !== "")
         .sort();
@@ -125,6 +124,8 @@ function plotTimeseriesGraph(locationData, selectedDate, coord) {
         (date) =>
             new Date(date) >= firstOfMonth && new Date(date) <= selectedDateObj
     );
+
+    const temperatures = filteredDates.map((d) => locationData[d]);
 
     const timeSeriesTrace = {
         type: "scatter",
@@ -167,3 +168,7 @@ function plotTimeseriesGraph(locationData, selectedDate, coord) {
 
     Plotly.newPlot("timeseries", [timeSeriesTrace], timeSeriesLayout);
 }
+
+// TODO: Plot histogram
+// Element id = "histogram"
+function plotHistogram() {}

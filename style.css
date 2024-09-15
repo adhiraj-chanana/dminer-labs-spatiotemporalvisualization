@@ -89,6 +89,11 @@ body {
     text-align: center;
 }
 
+.graphs {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
 button:hover {
     background-color: #cc8719;
 }
@@ -96,20 +101,7 @@ button:hover {
 #timeseries,
 #contour {
     width: 100%;
-    margin: 20px 0;
-}
-
-.instructions {
-    font-family: Inter, sans-serif;
-    color: black;
-    text-align: left;
-    margin-bottom: 20px;
-    padding: 2em;
-    font-size: 1.25rem;
-    border-radius: 8px;
-}
-.instructions h2 {
-    font-size: 2rem;
+    margin: 10px 0;
 }
 
 #timeseries-heading {
