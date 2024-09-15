@@ -1,5 +1,12 @@
 let jsonData;
 
+// Global variables for the parameters
+let model = null;
+let variable = null;
+
+const modelSelect = document.getElementById("model");
+const variableSelect = document.getElementById("variable");
+
 // Fetch JSON data from external file
 fetch("data.json")
     .then((response) => response.json())
@@ -9,30 +16,26 @@ fetch("data.json")
     })
     .catch((error) => console.error("Error loading JSON data:", error));
 
+function updateParameters() {
+    // Updates parameter whenever an onchange is event is detected
+    model = modelSelect.value;
+    variable = variableSelect.value;
+    updateMap();
+}
+
 function updateMap() {
-    const selectedDate = document.getElementById("dateInput").value;
-    const selectedVariable = document.getElementById("variable").value;
-    const selectedUnit = "kelvin";
-
-    if (!selectedDate) {
-        // alert("Please select a date.");
-        return;
-    }
-
     if (!jsonData) {
         alert("Data not loaded yet.");
         return;
     }
 
+    // The user hasn't chosen anything yet
+    if (!model || !variable) {
+        return;
+    }
+
     const tempData = jsonData.locations.map((location) => {
         let temp = location[selectedVariable][selectedDate];
-        if (temp !== null) {
-            if (selectedUnit === "celsius") {
-                temp = temp - 273.15;
-            } else if (selectedUnit === "fahrenheit") {
-                temp = ((temp - 273.15) * 9) / 5 + 32;
-            }
-        }
         return {
             lat: location.lat,
             lon: location.lon,
@@ -42,7 +45,6 @@ function updateMap() {
     });
 
     const filteredData = tempData.filter((d) => d.temp !== null);
-
     const mapTrace = {
         type: "scattergeo",
         mode: "markers",
@@ -60,13 +62,7 @@ function updateMap() {
             cmin: Math.min(...filteredData.map((d) => d.temp)),
             cmax: Math.max(...filteredData.map((d) => d.temp)),
             colorbar: {
-                title: `Temperature (${
-                    selectedUnit === "kelvin"
-                        ? "K"
-                        : selectedUnit === "celsius"
-                        ? "°C"
-                        : "°F"
-                })`,
+                title: `Temperature K`,
                 tickvals: [
                     Math.min(...filteredData.map((d) => d.temp)),
                     Math.max(...filteredData.map((d) => d.temp)),
@@ -114,7 +110,7 @@ function updateMap() {
     });
 }
 
-function plotTimeseriesGraph(locationData, selectedDate, selectedUnit, coord) {
+function plotTimeseriesGraph(locationData, selectedDate, coord) {
     document.getElementById("timeseries-heading").style.display = "block";
     const dates = Object.keys(locationData)
         .filter((date) => date !== "")
@@ -129,16 +125,6 @@ function plotTimeseriesGraph(locationData, selectedDate, selectedUnit, coord) {
         (date) =>
             new Date(date) >= firstOfMonth && new Date(date) <= selectedDateObj
     );
-
-    const temperatures = filteredDates.map((date) => {
-        let temp = locationData[date];
-        if (selectedUnit === "celsius") {
-            temp = temp - 273.15;
-        } else if (selectedUnit === "fahrenheit") {
-            temp = ((temp - 273.15) * 9) / 5 + 32;
-        }
-        return temp;
-    });
 
     const timeSeriesTrace = {
         type: "scatter",
@@ -164,13 +150,7 @@ function plotTimeseriesGraph(locationData, selectedDate, selectedUnit, coord) {
             tickangle: -45,
         },
         yaxis: {
-            title: `Temperature (${
-                selectedUnit === "kelvin"
-                    ? "K"
-                    : selectedUnit === "celsius"
-                    ? "°C"
-                    : "°F"
-            })`,
+            title: `Temperature K`,
             titlefont: {
                 size: 16,
                 color: "#ffffff",

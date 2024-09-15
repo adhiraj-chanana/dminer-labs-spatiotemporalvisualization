@@ -43,20 +43,34 @@
         </header>
 
         <div class="menubar">
-            <select name="variable" id="variable">
+            <select name="model" id="model" onchange="updateParameters()">
+                <option value="none" selected disabled>Choose a model</option>
+                <option value="gcm">GCM</option>
+                <option value="de">Deep Extrema</option>
+            </select>
+            <select name="variable" id="variable" onchange="updateParameters()">
                 <option value="none" selected disabled>
                     Choose a variable
                 </option>
                 <option value="ta">Temperature</option>
                 <option value="pa">Precipitation</option>
             </select>
-            <input type="date" id="dateInput" />
-            <button onclick="updateMap()">Update Map</button>
+            <a
+                class="about-link"
+                href="http://www.cse.msu.edu/~ptan/project/xtreme/"
+                target="_blank"
+            >
+                <div class="link-container">About</div>
+            </a>
         </div>
         <div class="container">
             <div id="map"></div>
-            <h2 id="timeseries-heading">Temperature Time Series</h2>
-            <div id="timeseries"></div>
+            <div class="graphs">
+                <!-- Time Series -->
+                <div id="timeseries"></div>
+                <!-- Histogram -->
+                <div id="histogram"></div>
+            </div>
         </div>
     </body>
     <script src="./main.js"></script>
