@@ -45,16 +45,6 @@
     font-size: 2rem;
 }
 
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #fff;
-    transition: all ease-in-out 0.2s;
-}
-
 /* ================= MENUBAR ================= */
 .menubar {
     display: grid;
@@ -74,27 +64,17 @@ a:hover {
     background-color: var(--foreground-color);
 }
 
-.menubar input[type="date"] {
-    background-color: var(--foreground-color);
-    font-weight: 600;
-    border: 2px solid;
-    text-align: center;
-    font-family: inherit;
-    font-size: 1.25rem;
-}
-
-.menubar button {
+.about-link {
+    display: flex;
     font-weight: 600;
     font-size: 1.25rem;
+    align-items: center;
+    justify-content: center;
     background-color: var(--accent-color);
-    color: #000;
-    cursor: pointer;
-    height: 100%;
-    margin: 0;
-    border-radius: 0;
     border: 2px solid black;
 }
 
+/* =========================================== */
 body {
     background-color: #ffffff;
     color: #000000;
@@ -109,6 +89,11 @@ body {
     text-align: center;
 }
 
+.graphs {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
 button:hover {
     background-color: #cc8719;
 }
@@ -116,22 +101,19 @@ button:hover {
 #timeseries,
 #contour {
     width: 100%;
-    margin: 20px 0;
-}
-
-.instructions {
-    font-family: Inter, sans-serif;
-    color: black;
-    text-align: left;
-    margin-bottom: 20px;
-    padding: 2em;
-    font-size: 1.25rem;
-    border-radius: 8px;
-}
-.instructions h2 {
-    font-size: 2rem;
+    margin: 10px 0;
 }
 
 #timeseries-heading {
     display: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fff;
+    transition: all ease-in-out 0.2s;
 }
